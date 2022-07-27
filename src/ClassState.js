@@ -27,7 +27,7 @@ export class ClassState extends React.Component {
     if (this.state.loading) {
       setTimeout(() => {
         if (SECURITY_CODE === this.state.value) {
-          this.setState({ loading: false });
+          this.setState({ error: false, loading: false });
         } else {
           this.setState({ error: true, loading: false });
         }
