@@ -26,7 +26,7 @@ export function UseState(props) {
 
       <p>Por favor, escribe el código de seguridad.</p>
 
-      {error && <p>Error: El código es incorrecto</p>}
+      {error && !loading && <p>Error: El código es incorrecto</p>}
 
       {loading && <p>Cargando...</p>}
 
@@ -41,7 +41,6 @@ export function UseState(props) {
       <button
         disabled={loading}
         onClick={() => {
-          if (error) setError(false);
           setLoading(true);
         }}
       >
