@@ -10,22 +10,31 @@ const INITIAL_STATE = {
 
 const SECURITY_CODE = "paradigma";
 
+const actionTypes = {
+  confirm: "CONFIRM",
+  error: "ERROR",
+  check: "CHECK",
+  delete: "DELETE",
+  reset: "RESET",
+  write: "WRITE",
+};
+
 const reducerObject = (state, payload) => ({
-  ERROR: {
-    ...state,
-    error: true,
-    loading: false,
-  },
-  CHECK: { ...state, loading: true },
-  CONFIRM: {
+  [actionTypes.check]: { ...state, loading: true },
+  [actionTypes.delete]: { ...state, deleted: true },
+  [actionTypes.reset]: { ...INITIAL_STATE },
+  [actionTypes.write]: { ...state, value: payload },
+  [actionTypes.confirm]: {
     ...state,
     error: false,
     loading: false,
     confirmed: true,
   },
-  DELETE: { ...state, deleted: true },
-  RESET: { ...INITIAL_STATE },
-  WRITE: { ...state, value: payload },
+  [actionTypes.error]: {
+    ...state,
+    error: true,
+    loading: false,
+  },
 });
 
 const reducer = (state, action) => {
@@ -39,21 +48,43 @@ const reducer = (state, action) => {
 export function UseReducer(props) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
 
-  const onWrite = (e) => {
-    //setState({ ...state, value: e.target.value });
+  const onConfirm = () => {
+    dispatch({
+      type: actionTypes.confirm,
+    });
+  };
+
+  const onError = () => {
+    dispatch({
+      type: actionTypes.error,
+    });
+  };
+
+  const onWrite = (event) => {
+    dispatch({
+      type: actionTypes.write,
+      payload: event.target.value,
+    });
+  };
+  const onCheck = () => {
+    dispatch({ type: actionTypes.check });
+  };
+
+  const onDelete = () => {
+    dispatch({ type: actionTypes.delete });
+  };
+
+  const onReset = () => {
+    dispatch({ type: actionTypes.reset });
   };
 
   useEffect(() => {
     if (state.loading) {
       setTimeout(() => {
         if (state.value === SECURITY_CODE) {
-          dispatch({
-            type: "CONFIRM",
-          });
+          onConfirm();
         } else {
-          dispatch({
-            type: "ERROR",
-          });
+          onError();
         }
       }, 3000);
     }
@@ -72,21 +103,11 @@ export function UseReducer(props) {
 
         <input
           value={state.value}
-          onChange={(event) => {
-            dispatch({
-              type: "WRITE",
-              payload: event.target.value,
-            });
-          }}
+          onChange={onWrite}
           placeholder="Código de seguridad"
         />
 
-        <button
-          disabled={state.loading}
-          onClick={() => {
-            dispatch({ type: "CHECK" });
-          }}
-        >
+        <button disabled={state.loading} onClick={onCheck}>
           Comprobar
         </button>
       </div>
@@ -96,20 +117,8 @@ export function UseReducer(props) {
       <div>
         <h2>Eliminar {props.name}</h2>
         <p>Pedimos confirmación. ¿Tas seguro?</p>
-        <button
-          onClick={() => {
-            dispatch({ type: "DELETE" });
-          }}
-        >
-          Confirmar
-        </button>
-        <button
-          onClick={() => {
-            dispatch({ type: "RESET" });
-          }}
-        >
-          Cancelar
-        </button>
+        <button onClick={onDelete}>Confirmar</button>
+        <button onClick={onReset}>Cancelar</button>
       </div>
     );
   } else {
@@ -117,13 +126,7 @@ export function UseReducer(props) {
       <div>
         <h2>{props.name}</h2>
         <p>Eliminado con éxito</p>
-        <button
-          onClick={() => {
-            dispatch({ type: "RESET" });
-          }}
-        >
-          Volver al inicio
-        </button>
+        <button onClick={onReset}>Volver al inicio</button>
       </div>
     );
   }
