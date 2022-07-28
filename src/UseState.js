@@ -15,13 +15,50 @@ export function UseState(props) {
   // const [error, setError] = useState(false);
   // const [loading, setLoading] = useState(false);
 
+  const onConfirm = () => {
+    setState({
+      ...state,
+      error: false,
+      loading: false,
+      confirmed: true,
+    });
+  };
+
+  const onError = () => {
+    setState({
+      ...state,
+      error: true,
+      loading: false,
+    });
+  };
+
+  const onWrite = (e) => {
+    setState({ ...state, value: e.target.value });
+  };
+
+  const onCheck = () => {
+    setState({ ...state, loading: true });
+  };
+
+  const onDelete = () => {
+    setState({ ...state, deleted: true });
+  };
+
+  const onCancel = () => {
+    setState({ ...state, confirmed: false });
+  };
+
+  const onReset = () => {
+    setState(INITIAL_STATE);
+  };
+
   useEffect(() => {
     if (state.loading) {
       setTimeout(() => {
         if (state.value === SECURITY_CODE) {
-          setState({ ...state, error: false, loading: false, confirmed: true });
+          onConfirm();
         } else {
-          setState({ ...state, error: true, loading: false });
+          onError();
         }
       }, 3000);
     }
@@ -40,18 +77,11 @@ export function UseState(props) {
 
         <input
           value={state.value}
-          onChange={(e) => {
-            setState({ ...state, value: e.target.value });
-          }}
+          onChange={onWrite}
           placeholder="Código de seguridad"
         />
 
-        <button
-          disabled={state.loading}
-          onClick={() => {
-            setState({ ...state, loading: true });
-          }}
-        >
+        <button disabled={state.loading} onClick={onCheck}>
           Comprobar
         </button>
       </div>
@@ -61,20 +91,8 @@ export function UseState(props) {
       <div>
         <h2>Eliminar {props.name}</h2>
         <p>Pedimos confirmación. ¿Tas seguro?</p>
-        <button
-          onClick={() => {
-            setState({ ...state, deleted: true });
-          }}
-        >
-          Confirmar
-        </button>
-        <button
-          onClick={() => {
-            setState({ ...state, confirmed: false });
-          }}
-        >
-          Cancelar
-        </button>
+        <button onClick={onDelete}>Confirmar</button>
+        <button onClick={onCancel}>Cancelar</button>
       </div>
     );
   } else {
@@ -82,13 +100,7 @@ export function UseState(props) {
       <div>
         <h2>{props.name}</h2>
         <p>Eliminado con éxito</p>
-        <button
-          onClick={() => {
-            setState(INITIAL_STATE);
-          }}
-        >
-          Volver al inicio
-        </button>
+        <button onClick={onReset}>Volver al inicio</button>
       </div>
     );
   }
